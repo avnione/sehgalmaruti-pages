@@ -1,1 +1,91 @@
-if(!self.define){let s,e={};const r=(r,l)=>(r=new URL(r+".js",l).href,e[r]||new Promise(e=>{if("document"in self){const s=document.createElement("script");s.src=r,s.onload=e,document.head.appendChild(s)}else s=r,importScripts(r),e()}).then(()=>{let s=e[r];if(!s)throw new Error(`Module ${r} didn’t register its module`);return s}));self.define=(l,i)=>{const n=s||("document"in self?document.currentScript.src:"")||location.href;if(e[n])return;let a={};const u=s=>r(s,n),t={module:{uri:n},exports:a,require:u};e[n]=Promise.all(l.map(s=>t[s]||u(s))).then(s=>(i(...s),a))}}define(["./workbox-9c191d2f"],function(s){"use strict";self.skipWaiting(),s.clientsClaim(),s.precacheAndRoute([{url:"registerSW.js",revision:"6a7126f4909d378979bca200ff77879d"},{url:"index.html",revision:"561f94da43869dfa3ece40a4f390d369"},{url:"icon.svg",revision:"74aa34438a65f60a748d2a9edad85ac8"},{url:"brand/sehgal-autoriders-logo.svg",revision:"4a3746e60b7783e9c18eb8a4e7b94e30"},{url:"brand/sehgal-autoriders-logo-square.svg",revision:"1150efca910d4c410a5afdb2d05bb0fa"},{url:"brand/sehgal-autoriders-logo-square-white.svg",revision:"8442ed15d03e564aa03873f7466c83bd"},{url:"brand/sehgal-autoriders-logo-on-dark.svg",revision:"7c2e3ca25ee9da11e52bba07eeaa280b"},{url:"assets/WiringPage-Bqcqj9SN.js",revision:null},{url:"assets/web-dZP68vr3.js",revision:null},{url:"assets/VisitsPage-CuhudM6W.js",revision:null},{url:"assets/VehicleHistoryPage-DJ-jyLxW.js",revision:null},{url:"assets/UniformPpePage-BL4G8ryQ.js",revision:null},{url:"assets/uniformPpeData-CPeLucXm.js",revision:null},{url:"assets/ui-DiGUpqir.js",revision:null},{url:"assets/TruthPage-BKK_oheQ.js",revision:null},{url:"assets/TripMap-vh-t_kPv.css",revision:null},{url:"assets/TripMap-BZBBt_Yk.js",revision:null},{url:"assets/TatPage-DL2BhjZw.js",revision:null},{url:"assets/SmreZeroTrainingBar-DrJFiP6Q.js",revision:null},{url:"assets/Sehgal1TGivenVsConvertedPage-uolPtJ7x.js",revision:null},{url:"assets/RoleCheckPage-DHwW2Di5.js",revision:null},{url:"assets/RetentionPage-k4DSrbvb.js",revision:null},{url:"assets/PmsCrmPage-e-EebGbm.js",revision:null},{url:"assets/plate-DwF3KeEm.js",revision:null},{url:"assets/PickDropPage-xMoorHxJ.js",revision:null},{url:"assets/LedgerPage-DhiOqdC-.js",revision:null},{url:"assets/inter-vietnamese-wght-normal-CBcvBZtf.woff2",revision:null},{url:"assets/inter-latin-wght-normal-Dx4kXJAl.woff2",revision:null},{url:"assets/inter-latin-ext-wght-normal-DO1Apj_S.woff2",revision:null},{url:"assets/inter-greek-wght-normal-CkhJZR-_.woff2",revision:null},{url:"assets/inter-greek-ext-wght-normal-DlzME5K_.woff2",revision:null},{url:"assets/inter-cyrillic-wght-normal-DqGufNeO.woff2",revision:null},{url:"assets/inter-cyrillic-ext-wght-normal-BOeWTOD4.woff2",revision:null},{url:"assets/InsurancePage-DYIDgrSK.js",revision:null},{url:"assets/index-DFNEGMTW.css",revision:null},{url:"assets/index-B_NL4tGK.js",revision:null},{url:"assets/HrPage-CQkDtGaS.js",revision:null},{url:"assets/HoldupPage-cd3P2Tr8.js",revision:null},{url:"assets/GateTables-sZjepVzZ.js",revision:null},{url:"assets/GatePage-C-GQjusC.js",revision:null},{url:"assets/GateGuardPage-9WfsxzfY.js",revision:null},{url:"assets/FeedPage-DRAiA_Qy.js",revision:null},{url:"assets/DriversPanel-BxZZqKO8.js",revision:null},{url:"assets/DriverPage-Mm86ljgr.js",revision:null},{url:"assets/dist-Dhrj-3P3.js",revision:null},{url:"assets/CustomersPage-CEPMdio_.js",revision:null},{url:"assets/BscNscPage-LMmBP7eT.js",revision:null},{url:"assets/AttendancePage-D2QCA6aH.js",revision:null},{url:"assets/AdminPage-HvxLhNRA.js",revision:null},{url:"icon.svg",revision:"74aa34438a65f60a748d2a9edad85ac8"},{url:"manifest.webmanifest",revision:"4e99442557dafa73e9b6a483bdaa21c2"}],{}),s.cleanupOutdatedCaches(),s.registerRoute(new s.NavigationRoute(s.createHandlerBoundToURL("index.html")))});
+/**
+ * Copyright 2018 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// If the loader is already loaded, just stop.
+if (!self.define) {
+  let registry = {};
+
+  // Used for `eval` and `importScripts` where we can't get script URL by other means.
+  // In both cases, it's safe to use a global var because those functions are synchronous.
+  let nextDefineUri;
+
+  const singleRequire = (uri, parentUri) => {
+    uri = new URL(uri + ".js", parentUri).href;
+    return registry[uri] || (
+      
+        new Promise(resolve => {
+          if ("document" in self) {
+            const script = document.createElement("script");
+            script.src = uri;
+            script.onload = resolve;
+            document.head.appendChild(script);
+          } else {
+            nextDefineUri = uri;
+            importScripts(uri);
+            resolve();
+          }
+        })
+      
+      .then(() => {
+        let promise = registry[uri];
+        if (!promise) {
+          throw new Error(`Module ${uri} didn’t register its module`);
+        }
+        return promise;
+      })
+    );
+  };
+
+  self.define = (depsNames, factory) => {
+    const uri = nextDefineUri || ("document" in self ? document.currentScript.src : "") || location.href;
+    if (registry[uri]) {
+      // Module is already loading or loaded.
+      return;
+    }
+    let exports = {};
+    const require = depUri => singleRequire(depUri, uri);
+    const specialDeps = {
+      module: { uri },
+      exports,
+      require
+    };
+    registry[uri] = Promise.all(depsNames.map(
+      depName => specialDeps[depName] || require(depName)
+    )).then(deps => {
+      factory(...deps);
+      return exports;
+    });
+  };
+}
+define(['./workbox-7e5eb42b'], (function (workbox) { 'use strict';
+
+  self.skipWaiting();
+  workbox.clientsClaim();
+  /**
+   * The precacheAndRoute() method efficiently caches and responds to
+   * requests for URLs in the manifest.
+   * See https://goo.gl/S9QRab
+   */
+  workbox.precacheAndRoute([{
+    "url": "icon.svg",
+    "revision": "74aa34438a65f60a748d2a9edad85ac8"
+  }, {
+    "url": "manifest.webmanifest",
+    "revision": "e07f1d522a7672fa7a6c176765630c38"
+  }], {});
+  workbox.cleanupOutdatedCaches();
+  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
+    denylist: [/^\/maruti-app/, /^\/install/]
+  }));
+
+}));
